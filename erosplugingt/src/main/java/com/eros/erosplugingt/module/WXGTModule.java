@@ -1,4 +1,5 @@
-package com.benmu.erosplugingt.module;
+package com.eros.erosplugingt.module;
+
 
 import com.alibaba.weex.plugin.annotation.WeexModule;
 import com.eros.erosplugingt.manager.GetuiManager;
