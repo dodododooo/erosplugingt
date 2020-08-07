@@ -14,6 +14,9 @@ import com.eros.framework.manager.impl.ParseManager;
 import com.eros.framework.utils.SharePreferenceUtil;
 import com.igexin.sdk.PushConsts;
 
+import java.util.Timer;
+import java.util.TimerTask;
+
 /**
  * Created by Carry on 2017/11/15.
  */
@@ -21,7 +24,7 @@ import com.igexin.sdk.PushConsts;
 public class GTPushReceiver extends BroadcastReceiver {
 
     @Override
-    public void onReceive(Context context, Intent intent) {
+    public void onReceive(final Context context, Intent intent) {
         Bundle bundle = intent.getExtras();
         switch (bundle.getInt(PushConsts.CMD_ACTION)) {
             case PushConsts.GET_MSG_DATA:
@@ -36,9 +39,14 @@ public class GTPushReceiver extends BroadcastReceiver {
                                 (ParseManager.class);
                         JSONObject payload = parseManager.parseObject(content);
                         if (payload != null) {
-                            String data = payload.getString("payload");
-                            ManagerFactory.getManagerService(PushManager.class).handlePush
-                                    (context, data);
+                            final String data = payload.getString("payload");
+                            TimerTask task = new TimerTask(){
+                                public void run(){
+                                    ManagerFactory.getManagerService(PushManager.class).handlePush(context, data);
+                                }
+                            };
+                            Timer timer = new Timer();
+                            timer.schedule(task, 1000);
                         }
                     }
                 } catch (Exception e) {
