@@ -75,6 +75,10 @@ public class GetuiIntentService extends GTIntentService {
 
 //        sendMessage(clientid, DemoApplication.DemoHandler.RECEIVE_CLIENT_ID);
     }
+    @Override
+    public void onReceiveDeviceToken(Context context, String deviceToken) {
+        Log.d(TAG, "deviceToken-->" + deviceToken);
+    }
 
     @Override
     public void onReceiveOnlineState(Context context, boolean online) {
@@ -112,6 +116,8 @@ public class GetuiIntentService extends GTIntentService {
             + message.getMessageId() + "\npkg = " + message.getPkgName() + "\ncid = " + message.getClientId() + "\ntitle = "
             + message.getTitle() + "\ncontent = " + message.getContent());
     }
+
+
 
     private void setTagResult(SetTagCmdMessage setTagCmdMsg) {
         String sn = setTagCmdMsg.getSn();

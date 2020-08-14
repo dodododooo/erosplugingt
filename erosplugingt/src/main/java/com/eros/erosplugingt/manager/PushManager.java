@@ -22,10 +22,13 @@ import com.eros.framework.model.BaseEventBean;
 import com.eros.framework.utils.ResourceUtil;
 import com.eros.widget.utils.BaseCommonUtil;
 
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import static com.umeng.socialize.utils.ContextUtil.getPackageName;
 
 /**
  * Created by Carry on 2017/11/15.
@@ -66,6 +69,7 @@ public class PushManager extends Manager {
             eventBean.clazzName = "com.eros.framework.event.GlobalEvent";
             bean.trigger = false;
             ParseManager param = ManagerFactory.getManagerService(ParseManager.class);
+
             String json = param.toJsonString(bean);
             eventBean.param = json;
             ManagerFactory.getManagerService(DispatchEventManager.class).getBus().post
@@ -80,21 +84,25 @@ public class PushManager extends Manager {
 
     private void showNotification(Context context, NotificationBean bean) {
         if (bean == null) return;
-        int iconId = ResourceUtil.getMipmapId("com.eros.wx", "app_icon");
-        String appName = context.getResources().getString(ResourceUtil.getStringId("com.eros" +
-                ".wx", "app_name"));
+
+        int iconId = ResourceUtil.getMipmapId(getPackageName(), "push_small");
+
+        String appName = context.getResources().getString(ResourceUtil.getStringId(getPackageName(), "app_name"));
 
         NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(context)
                 .setSmallIcon(iconId).setContentTitle(appName).setTicker(bean.aps.alert)
                 .setContentText(bean.aps.alert.trim
                         ()).setAutoCancel(true).setDefaults(Notification.DEFAULT_LIGHTS |
                         Notification.DEFAULT_VIBRATE);
+
         Intent resultIntent = new Intent(context, ResultActivity.class);
         resultIntent.putExtra("type", Constant.Action.ACTION_NOTIFICATION);
         resultIntent.putExtra(Constant.Notification.TAG_NOTIFICATION, bean);
+
         PendingIntent resultPendingIntent = PendingIntent.getActivity(context,
                 0, resultIntent, PendingIntent.FLAG_CANCEL_CURRENT);
         mBuilder.setContentIntent(resultPendingIntent);
+
         NotificationManager mNotifyMgr = (NotificationManager) context
                 .getSystemService(Context.NOTIFICATION_SERVICE);
         mNotifyMgr.notify(Constant.Notification.NOTIFY_ID_MESSAGE, mBuilder.build());
