@@ -2,8 +2,13 @@ package com.eros.erosplugingt;
 
 import android.content.Context;
 import android.os.Message;
+import android.text.TextUtils;
 import android.util.Log;
 
+import com.alibaba.fastjson.JSONObject;
+import com.eros.framework.manager.ManagerFactory;
+import com.eros.framework.manager.impl.ParseManager;
+import com.eros.widget.utils.BaseCommonUtil;
 import com.igexin.sdk.GTIntentService;
 import com.igexin.sdk.PushConsts;
 import com.igexin.sdk.PushManager;
@@ -15,6 +20,9 @@ import com.igexin.sdk.message.GTTransmitMessage;
 import com.igexin.sdk.message.SetTagCmdMessage;
 import com.igexin.sdk.message.UnBindAliasCmdMessage;
 
+import java.util.Timer;
+import java.util.TimerTask;
+
 /**
  * 继承 GTIntentService 接收来自个推的消息, 所有消息在线程中回调, 如果注册了该服务, 则务必要在 AndroidManifest中声明, 否则无法接受消息<br>
  * onReceiveMessageData 处理透传消息<br>
@@ -24,7 +32,7 @@ import com.igexin.sdk.message.UnBindAliasCmdMessage;
  */
 public class GetuiIntentService extends GTIntentService {
 
-    private static final String TAG = "GetuiSdkDemo";
+    private static final String TAG = "GPush";
 
     /**
      * 为了观察透传数据变化.
@@ -37,7 +45,7 @@ public class GetuiIntentService extends GTIntentService {
     }
 
     @Override
-    public void onReceiveMessageData(Context context, GTTransmitMessage msg) {
+    public void onReceiveMessageData(final Context context, GTTransmitMessage msg) {
         String appid = msg.getAppid();
         String taskid = msg.getTaskId();
         String messageid = msg.getMessageId();
@@ -55,8 +63,7 @@ public class GetuiIntentService extends GTIntentService {
         if (payload == null) {
             Log.e(TAG, "receiver payload = null");
         } else {
-            String data = new String(payload);
-            Log.d(TAG, "receiver payload = " + data);
+
 
             // 测试消息为了观察数据变化
 //            if (data.equals(getResources().getString(R.string.push_transmission_data))) {
@@ -64,6 +71,43 @@ public class GetuiIntentService extends GTIntentService {
 //                cnt++;
 //            }
 //            sendMessage(data, DemoApplication.DemoHandler.RECEIVE_MESSAGE_DATA);
+
+            try {
+                String content = new String(payload, "UTF-8");
+                Log.d(TAG, "receiver payload = " + content);
+                if (!TextUtils.isEmpty(content)) {
+                    ParseManager parseManager = ManagerFactory.getManagerService
+                        (ParseManager.class);
+                    JSONObject payloads = parseManager.parseObject(content);
+                    if (payloads != null) {
+                        final String data = payloads.getString("payload");
+                        TimerTask task = new TimerTask(){
+                            public void run(){
+                                String topActivityName = BaseCommonUtil.getTopActivityClassName(context);
+                                Log.e("GPush", "topActivityName2>>>>>>>>" + topActivityName);
+                                if (!topActivityName.equals("com.eros.framework.activity.MainActivity")) {
+                                    TimerTask task2 = new TimerTask() {
+                                        @Override
+                                        public void run() {
+                                            ManagerFactory.getManagerService(com.eros.erosplugingt.manager.PushManager.class).handlePush(context, data);
+                                        }
+                                    };
+                                    Timer timer2 = new Timer();
+                                    timer2.schedule(task2, 5000);
+                                } else {
+                                    ManagerFactory.getManagerService(com.eros.erosplugingt.manager.PushManager.class).handlePush(context, data);
+                                }
+
+                            }
+                        };
+                        Timer timer = new Timer();
+                        timer.schedule(task, 1000);
+                    }
+                }
+            } catch (Exception e) {
+                Log.d(TAG, String.valueOf(e));
+                e.printStackTrace();
+            }
         }
 
         Log.d(TAG, "----------------------------------------------------------------------------------------------");

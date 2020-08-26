@@ -31,43 +31,43 @@ public class GTPushReceiver extends BroadcastReceiver {
             case PushConsts.GET_MSG_DATA:
                 //收到透传消息
 
-                byte[] payloads = bundle.getByteArray("payload");
-                String content = null;
-                try {
-                    content = new String(payloads, "UTF-8");
-                    Log.e("GPush", "payload>>>>>>>>" + content);
-                    if (!TextUtils.isEmpty(content)) {
-                        ParseManager parseManager = ManagerFactory.getManagerService
-                                (ParseManager.class);
-                        JSONObject payload = parseManager.parseObject(content);
-                        if (payload != null) {
-                            final String data = payload.getString("payload");
-                            TimerTask task = new TimerTask(){
-                                public void run(){
-                                    String topActivityName = BaseCommonUtil.getTopActivityClassName(context);
-                                    Log.e("GPush", "topActivityName2>>>>>>>>" + topActivityName);
-                                    if (!topActivityName.equals("com.eros.framework.activity.MainActivity")) {
-                                       TimerTask task2 = new TimerTask() {
-                                           @Override
-                                           public void run() {
-                                               ManagerFactory.getManagerService(PushManager.class).handlePush(context, data);
-                                           }
-                                       };
-                                        Timer timer2 = new Timer();
-                                        timer2.schedule(task2, 5000);
-                                    } else {
-                                        ManagerFactory.getManagerService(PushManager.class).handlePush(context, data);
-                                    }
-
-                                }
-                            };
-                            Timer timer = new Timer();
-                            timer.schedule(task, 1000);
-                        }
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
+//                byte[] payloads = bundle.getByteArray("payload");
+//                String content = null;
+//                try {
+//                    content = new String(payloads, "UTF-8");
+//                    Log.e("GPush", "payload>>>>>>>>" + content);
+//                    if (!TextUtils.isEmpty(content)) {
+//                        ParseManager parseManager = ManagerFactory.getManagerService
+//                                (ParseManager.class);
+//                        JSONObject payload = parseManager.parseObject(content);
+//                        if (payload != null) {
+//                            final String data = payload.getString("payload");
+//                            TimerTask task = new TimerTask(){
+//                                public void run(){
+//                                    String topActivityName = BaseCommonUtil.getTopActivityClassName(context);
+//                                    Log.e("GPush", "topActivityName2>>>>>>>>" + topActivityName);
+//                                    if (!topActivityName.equals("com.eros.framework.activity.MainActivity")) {
+//                                       TimerTask task2 = new TimerTask() {
+//                                           @Override
+//                                           public void run() {
+//                                               ManagerFactory.getManagerService(PushManager.class).handlePush(context, data);
+//                                           }
+//                                       };
+//                                        Timer timer2 = new Timer();
+//                                        timer2.schedule(task2, 5000);
+//                                    } else {
+//                                        ManagerFactory.getManagerService(PushManager.class).handlePush(context, data);
+//                                    }
+//
+//                                }
+//                            };
+//                            Timer timer = new Timer();
+//                            timer.schedule(task, 1000);
+//                        }
+//                    }
+//                } catch (Exception e) {
+//                    e.printStackTrace();
+//                }
 
                 break;
             case PushConsts.GET_CLIENTID:
