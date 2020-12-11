@@ -1,12 +1,16 @@
 package com.eros.erosplugingt.module;
 
 
+import android.util.Log;
+
 import com.alibaba.weex.plugin.annotation.WeexModule;
 import com.eros.erosplugingt.manager.GetuiManager;
 import com.eros.framework.constant.WXEventCenter;
 import com.eros.framework.manager.ManagerFactory;
 import com.eros.framework.manager.impl.dispatcher.DispatchEventManager;
 import com.eros.framework.model.WeexEventBean;
+import com.eros.framework.utils.JsPoster;
+import com.igexin.sdk.PushManager;
 import com.taobao.weex.annotation.JSMethod;
 import com.taobao.weex.bridge.JSCallback;
 import com.taobao.weex.common.WXModule;
@@ -36,4 +40,22 @@ public class WXGTModule extends WXModule {
         ManagerFactory.getManagerService(DispatchEventManager.class).getBus().post(weexEventBean);
     }
 
+    @JSMethod
+    public void turnOffPush () {
+        PushManager.getInstance().turnOffPush(mWXSDKInstance.getContext());
+    }
+    @JSMethod
+    public void turnOnPush () {
+        PushManager.getInstance().turnOnPush(mWXSDKInstance.getContext());
+    }
+    @JSMethod
+    public void isPushTurnedOn (JSCallback callback) {
+        try {
+            Boolean isOn = PushManager.getInstance().isPushTurnedOn(mWXSDKInstance.getContext());
+            JsPoster.postSuccess(isOn, callback);
+        } catch (Exception e) {
+            JsPoster.postFailed(callback);
+        }
+
+    }
 }
