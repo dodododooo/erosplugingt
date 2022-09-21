@@ -17,14 +17,18 @@ import com.taobao.weex.common.WXModule;
 
 import java.util.Map;
 
+import static com.eros.framework.constant.WXEventCenter.EVENT_GETCID;
+
 /**
  * Created by liuyuanxiao on 18/4/10.
  */
 
 @WeexModule(name = "bmPush", lazyLoad = true)
 public class WXGTModule extends WXModule {
+    private static final String TAG = "GPush";
     @JSMethod
     public void initPush(String parms) {
+        Log.d(TAG, "initPush: " + parms);
         GetuiManager.pushInit(mWXSDKInstance.getContext());
     }
 
@@ -33,8 +37,9 @@ public class WXGTModule extends WXModule {
      */
     @JSMethod
     public void getCid(JSCallback callback) {
+
         WeexEventBean weexEventBean = new WeexEventBean();
-        weexEventBean.setKey(WXEventCenter.EVENT_GETCID);
+        weexEventBean.setKey(EVENT_GETCID);
         weexEventBean.setContext(mWXSDKInstance.getContext());
         weexEventBean.setJscallback(callback);
         ManagerFactory.getManagerService(DispatchEventManager.class).getBus().post(weexEventBean);
